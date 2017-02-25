@@ -32,16 +32,16 @@ Sample HomeBridge Configuration (complete)
 			"password": "MQTT PASSWORD",
 		
 			"topics": {
-				"statusGet": "stat/MQTT/POWER",
-				"stateGet": "tele/MQTT/STATE"
+				"statusGet": "stat/sonoff/POWER",
+				"stateGet": "tele/sonoff/STATE"
 			},
 			"onValue": "ON",
 			"offValue": "OFF",
 		
-			"activityTopic": "tele/MQTT/LWT",
+			"activityTopic": "tele/sonoff/LWT",
 	        "activityParameter": "Online",
         
-			"startCmd": "cmnd/MQTT/TelePeriod",
+			"startCmd": "cmnd/sonoff/TelePeriod",
 			"startParameter": "60",
 
 			"manufacturer": "ITEAD",
@@ -78,8 +78,8 @@ Sample HomeBridge Configuration (minimal)
 			"password": "MQTT PASSWORD",
 		
 			"topics": {
-				"statusGet": "stat/MQTT/POWER",
-				"stateGet": "tele/MQTT/STATE"
+				"statusGet": "stat/sonoff/POWER",
+				"stateGet": "tele/sonoff/STATE"
 			}
 		}
 	]

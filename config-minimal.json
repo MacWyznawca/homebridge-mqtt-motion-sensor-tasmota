@@ -21,8 +21,8 @@
 			"password": "MQTT PASSWORD",
 		
 			"topics": {
-				"statusGet": "stat/MQTT/POWER",
-				"stateGet": "tele/MQTT/STATE"
+				"statusGet": "stat/sonoff/POWER",
+				"stateGet": "tele/sonoff/STATE"
 			}
 		}
 	]

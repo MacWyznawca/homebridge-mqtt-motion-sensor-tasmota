@@ -1,17 +1,20 @@
-# homebridge-mqtt-motion-sensor-tasmota
-Plugin to HomeBridge optimized for work with Itead Sonoff hardware and firmware [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) via MQTT. It acts as a motion detector. Ex. connect the motion detector to GPIO14 and set GPIO14 as a switch in the configuration of the firmware Tasmota.
+# homebridge-mqtt-temperature-tasmota
 
-Like this? Please buy me a beer (or coffee) please ;-) <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=CK56Q7SFHEHSW"><img src="http://macwyznawca.pl/donate-paypal.png" alt="Donate a coder" data-canonical-src="http://macwyznawca.pl/donate-paypal.svg" style="max-width:100%;"></a>
+Plugin to HomeBridge optimized for work with Itead Sonoff and Electrodragon Relay Board hardware and firmware [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) via MQTT. It acts as a themperature monitor for DS18B20, DHT22, DHT11, AM2301, M2302 sensors.
 
-[MacWyznawca.pl](http://macwyznawca.pl)
+Like this? Please buy me a beer (or coffee) ;-) <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=CK56Q7SFHEHSW"><img src="http://macwyznawca.pl/donate-paypal2.png" alt="Donate a coder" data-canonical-src="http://macwyznawca.pl/donate-paypal.svg" style="max-width:100%;"></a>
+
+[MacWyznawca.pl](http://macwyznawca.pl) Jaromir Kopp
 
 Installation
 --------------------
-    sudo npm install -g homebridge-mqtt-motion-sensor-tasmota
+    sudo npm install -g homebridge-mqtt-temperature-tasmota
 
 Sample HomeBridge Configuration (complete)
 --------------------
+
 {
+	
     "bridge": {
         "name": "Homebridge",
         "username": "CC:22:3D:E3:CE:30",
@@ -21,42 +24,39 @@ Sample HomeBridge Configuration (complete)
     
     "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
 
-    "platforms": [
-    ],
+    "platforms": [],
+	
 	"accessories": [
-	    {
-			"accessory": "mqtt-motion-sensor-tasmota",
-		
+		{
+			"accessory": "mqtt-temperature-tasmota",
+
 			"name": "NAME OF THIS ACCESSORY",
-		
+	
 			"url": "mqtt://MQTT-ADDRESS",
 			"username": "MQTT USER NAME",
 			"password": "MQTT PASSWORD",
-		
-			"topics": {
-				"statusGet": "stat/sonoff/POWER",
-				"stateGet": "tele/sonoff/STATE"
-			},
-			"onValue": "ON",
-			"offValue": "OFF",
-		
+
+			"topic": "tele/sonoff/SENSOR",
+
 			"activityTopic": "tele/sonoff/LWT",
-	        "activityParameter": "Online",
-        
+			"activityParameter": "Online",
+
 			"startCmd": "cmnd/sonoff/TelePeriod",
-			"startParameter": "60",
+			"startParameter": "120",
 
 			"manufacturer": "ITEAD",
-			"model": "Sonoff",
+			"model": "Sonoff TH",
 			"serialNumberMAC": "MAC OR SERIAL NUMBER"
+
 		}
 	]
 }
 
-
 Sample HomeBridge Configuration (minimal)
 --------------------
+
 {
+	
     "bridge": {
         "name": "Homebridge",
         "username": "CC:22:3D:E3:CE:30",
@@ -64,36 +64,31 @@ Sample HomeBridge Configuration (minimal)
         "pin": "031-45-154"
     },
     
-    "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
+    "description": "This is an example minimal configuration file. You can use this as a template for creating your own configuration file.",
 
-    "platforms": [
-    ],
+    "platforms": [],
+	
 	"accessories": [
-	    {
-			"accessory": "mqtt-motion-sensor-tasmota",
-			"switchType": "outlet",
-		
+		{
+			"accessory": "mqtt-temperature-tasmota",
+
 			"name": "NAME OF THIS ACCESSORY",
-		
+	
 			"url": "mqtt://MQTT-ADDRESS",
 			"username": "MQTT USER NAME",
 			"password": "MQTT PASSWORD",
-		
-			"topics": {
-				"statusGet": "stat/sonoff/POWER",
-				"stateGet": "tele/sonoff/STATE"
-			}
+
+			"topic": "tele/sonoff/SENSOR"
+
 		}
 	]
 }
 
 # Description of the configuration file.
 
-**"switchType": "outlet"** - outlet for outlet emulation, other or empty for switch.
-
 **sonoff** in topic - topics name of Your Sonoff switch.
 
-**"stateGet": "tele/sonoff/STATE"** - topic for cyclic telemetry information.
+**"topic"** - telemetry topic (for sensors data)
 
 **"activityTopic": "tele/sonoff/LWT"** - last will topic for check online state.
 

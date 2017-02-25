@@ -6,24 +6,22 @@
         "pin": "031-45-154"
     },
     
-    "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
+    "description": "This is an example minimal configuration file. You can use this as a template for creating your own configuration file.",
 
-    "platforms": [
-    ],
+    "platforms": [],
+	
 	"accessories": [
-	    {
-			"accessory": "mqtt-motion-sensor-tasmota",
-		
+		{
+			"accessory": "mqtt-temperature-tasmota",
+
 			"name": "NAME OF THIS ACCESSORY",
-		
+	
 			"url": "mqtt://MQTT-ADDRESS",
 			"username": "MQTT USER NAME",
 			"password": "MQTT PASSWORD",
-		
-			"topics": {
-				"statusGet": "stat/sonoff/POWER",
-				"stateGet": "tele/sonoff/STATE"
-			}
+
+			"topic": "tele/sonoff/SENSOR"
+
 		}
 	]
 }

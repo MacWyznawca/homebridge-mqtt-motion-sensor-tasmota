@@ -1,6 +1,6 @@
 {
-  "name": "homebridge-mqtt-temperature-tasmota",
-  "version": "0.0.2",
+  "name": "homebridge-mqtt-motion-sensor-tasmota",
+  "version": "0.0.5",
   "description": "Plugin to HomeBridge optimized for work with Itead Sonoff and Electrodragon Relay Board hardware with firmware Sonoff-Tasmota via MQTT.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MacWyznawca/homebridge-mqtt-temperature-tasmota.git"
+    "url": "git+https://github.com/MacWyznawca/homebridge-mqtt-motion-sensor-tasmota.git"
   },
   "dependencies": {
     "mqtt": "^1.12.0"
@@ -26,17 +26,12 @@
     "tasmota",
     "Sonoff-Tasmota",
 	"electrodragon",
-	"Wifi IoT Relay Board",
-	"DS18B20",
-	"DHT22",
-	"DHT11",
-	"AM2301",
-	"AM2302"
+	"Wifi IoT Relay Board"
   ],
   "author": "Jaromir Kopp",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MacWyznawca/homebridge-mqtt-temperature-tasmota/issues"
+    "url": "https://github.com/MacWyznawca/homebridge-mqtt-motion-sensor-tasmota/issues"
   },
-  "homepage": "https://github.com/MacWyznawca/homebridge-mqtt-temperature-tasmota#readme"
+  "homepage": "https://github.com/MacWyznawca/homebridge-mqtt-motion-sensor-tasmota#readme"
 }

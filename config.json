@@ -8,30 +8,34 @@
     
     "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
 
-    "platforms": [],
-	
+    "platforms": [
+    ],
 	"accessories": [
-		{
-			"accessory": "mqtt-temperature-tasmota",
-
+	    {
+			"accessory": "mqtt-motion-sensor-tasmota",
+		
 			"name": "NAME OF THIS ACCESSORY",
-	
+		
 			"url": "mqtt://MQTT-ADDRESS",
 			"username": "MQTT USER NAME",
 			"password": "MQTT PASSWORD",
-
-			"topic": "tele/sonoff/SENSOR",
-
+		
+			"topics": {
+				"statusGet": "stat/sonoff/POWER",
+				"stateGet": "tele/sonoff/STATE"
+			},
+			"onValue": "ON",
+			"offValue": "OFF",
+		
 			"activityTopic": "tele/sonoff/LWT",
-			"activityParameter": "Online",
-
+	        "activityParameter": "Online",
+        
 			"startCmd": "cmnd/sonoff/TelePeriod",
-			"startParameter": "120",
+			"startParameter": "60",
 
 			"manufacturer": "ITEAD",
-			"model": "Sonoff TH",
+			"model": "Sonoff",
 			"serialNumberMAC": "MAC OR SERIAL NUMBER"
-
 		}
 	]
 }

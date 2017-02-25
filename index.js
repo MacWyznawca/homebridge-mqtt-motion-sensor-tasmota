@@ -1,26 +1,30 @@
-// Sonoff-Tasmota Temperature Sensor Accessory plugin for HomeBridge
+// Sonoff-Tasmota Motion Sensor Accessory plugin for HomeBridge
 //
 // Remember to add accessory to config.json. Example:
 /* 	"accessories": [
 	{
-		"accessory": "mqtt-temperature-tasmota",
-
-		"name": "NAME OF THIS ACCESSORY",
-	
-		"url": "mqtt://MQTT-ADDRESS",
+		"accessory": "mqtt-motion-sensor-tasmota",
+		"name": "Motion Sensor",
+		
+		"url": "mqtt://MQTT-BROKER-ADDRESS",
 		"username": "MQTT USER NAME",
 		"password": "MQTT PASSWORD",
 
-		"topic": "tele/sonoff/SENSOR",
-
+		"topics": {
+			"statusGet": "stat/sonoff/POWER",
+			"stateGet": "tele/sonoff/STATE"
+		},
+		"onValue": "ON",
+		"offValue": "OFF",
+		
 		"activityTopic": "tele/sonoff/LWT",
-		"activityParameter": "Online",
-
+        "activityParameter": "Online",
+        
 		"startCmd": "cmnd/sonoff/TelePeriod",
-		"startParameter": "120",
-
+		"startParameter": "60",
+		
 		"manufacturer": "ITEAD",
-		"model": "Sonoff TH",
+		"model": "Sonoff",
 		"serialNumberMAC": "MAC OR SERIAL NUMBER"
 
 	}]
@@ -28,123 +32,144 @@
 // When you attempt to add a device, it will ask for a "PIN code".
 // The default code for all HomeBridge accessories is 031-45-154.
 
+'use strict';
+
 var Service, Characteristic;
-var mqtt    = require('mqtt');
+var mqtt = require("mqtt");
 
 module.exports = function(homebridge) {
-  Service = homebridge.hap.Service;
-  Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory("homebridge-mqtt-temperature-tasmota", "mqtt-temperature-tasmota", TemperatureTasmotaAccessory);
+  	Service = homebridge.hap.Service;
+  	Characteristic = homebridge.hap.Characteristic;
+
+  	homebridge.registerAccessory("homebridge-mqtt-motion-sensor-tasmota", "mqtt-motion-sensor-tasmota", MotionSensorTasmotaAccessory);
 }
 
-function TemperatureTasmotaAccessory(log, config) {
-  this.log = log;
-  this.name = config["name"];
-    this.manufacturer = config['manufacturer'];
- 	this.model = config['model'];
-	this.serialNumberMAC = config['serialNumberMAC'];
-
-  this.url = config['url'];
-  this.topic = config['topic'];
-	if (config["activityTopic"] !== undefined) {
-		this.activityTopic = config["activityTopic"];
-		this.activityParameter = config["activityParameter"];
-	}
-	else {
-		this.activityTopic = "";
-		this.activityParameter = "";
-	}
-
-  this.client_Id 		= 'mqttjs_' + Math.random().toString(16).substr(2, 8);7
-  this.options = {
-    keepalive: 10,
-    clientId: this.client_Id,
-		protocolId: 'MQTT',
+function MotionSensorTasmotaAccessory(log, config) {
+  	this.log          	= log;
+  	
+  	this.url 			= config["url"];
+    this.publish_options = {
+      qos: ((config["qos"] !== undefined)? config["qos"]: 0)
+    };
+    
+	this.client_Id 		= 'mqttjs_' + Math.random().toString(16).substr(2, 8);
+	this.options = {
+	    keepalive: 10,
+    	clientId: this.client_Id,
+	    protocolId: 'MQTT',
     	protocolVersion: 4,
-		clean: true,
-		reconnectPeriod: 1000,
-		connectTimeout: 30 * 1000,
+    	clean: true,
+    	reconnectPeriod: 1000,
+    	connectTimeout: 30 * 1000,
 		will: {
 			topic: 'WillMsg',
 			payload: 'Connection Closed abnormally..!',
 			qos: 0,
 			retain: false
 		},
-		username: config["username"],
-		password: config["password"],
-		rejectUnauthorized: false
+	    username: config["username"],
+	    password: config["password"],
+    	rejectUnauthorized: false
 	};
+	
+	this.topicStatusGet	= config["topics"].statusGet;
+	this.topicsStateGet	= (config["topics"].stateGet  !== undefined) ? config["topics"].stateGet : "";
+	
+	this.onValue = (config["onValue"] !== undefined) ? config["onValue"]: "ON";
+    this.offValue = (config["offValue"] !== undefined) ? config["offValue"]: "OFF";
 
-  this.service = new Service.TemperatureSensor(this.name);
-   	if(this.activityTopic !== "") {
-		this.service.addOptionalCharacteristic(Characteristic.StatusActive);
+	if (config["activityTopic"] !== undefined && config["activityParameter"] !== undefined) {
+		this.activityTopic = config["activityTopic"];
+	  	this.activityParameter = config["activityParameter"];
 	}
+	else {
+		this.activityTopic = "";
+	  	this.activityParameter = "";
+	}
+	
+	this.name = config["name"] || "Sonoff";
+  	this.manufacturer = config['manufacturer'] || "ITEAD";
+	this.model = config['model'] || "Sonoff";
+	this.serialNumberMAC = config['serialNumberMAC'] || "";
+  	
+	this.motionDetected = false;
+	
+	this.service = new Service.MotionSensor(this.name);
 
-  this.client  = mqtt.connect(this.url, this.options);
-  
-  	this.client.on('error', function () {
-		that.log('Error event on MQTT');
-	});
-
-  // Eksperyment z wymuszaniem statusu
-	this.client.on('connect', function () {
-		if (config["startCmd"] !== undefined) {
-			that.client.publish(config["startCmd"], config["startParameter"] !== undefined ? config["startParameter"] : "");
-		}
-	});
-
-  	var that = this;
-    this.client.subscribe(this.topic);
-	if(this.activityTopic !== ""){
-		this.client.subscribe(this.activityTopic);
- 	}
-
-  	this.client.on('message', function (topic, message) {
-		if (topic == that.topic) {
-			data = JSON.parse(message);
-			if (data === null) {return null}
-			if (data.hasOwnProperty("DS18B20")) {
-				that.temperature = parseFloat(parseFloat(data.DS18B20.Temperature));
-			 }
-			 else  if (data.hasOwnProperty("DHT")) { 
-				that.temperature = parseFloat(parseFloat(data.DHT.Temperature));
-			}
-			that.service.setCharacteristic(Characteristic.CurrentTemperature, that.temperature);
-		} else if (topic == that.activityTopic) {
-			var status = message.toString(); 	
-			that.activeStat = (status == that.activityParameter) ;
-			that.service.setCharacteristic(Characteristic.StatusActive, that.activeStat);
-		}
-	});
-
+	
 	this.service
-    	.getCharacteristic(Characteristic.CurrentTemperature)
-    	.on('get', this.getState.bind(this));
-		
-	this.service
-		.getCharacteristic(Characteristic.CurrentTemperature)
-		.setProps({minValue: -50});
-                                                
-	this.service
-		.getCharacteristic(Characteristic.CurrentTemperature)
-		.setProps({maxValue: 125});
-		
-    if(this.activityTopic !== "") {
+    	.getCharacteristic(Characteristic.MotionDetected)
+    	.on('get', this.getStatus.bind(this))
+
+	if(this.activityTopic !== "") {
+		this.service.addOptionalCharacteristic(Characteristic.StatusActive);
 		this.service
 			.getCharacteristic(Characteristic.StatusActive)
 			.on('get', this.getStatusActive.bind(this));
-    }
+	}
+
+
+	this.client = mqtt.connect(this.url, this.options);
+	var that = this;
+	this.client.on('error', function () {
+		that.log('Error event on MQTT');
+	});
+	
+	this.client.on('connect', function () {
+		if (config["startCmd"] !== undefined && config["startParameter"] !== undefined) {
+			that.client.publish(config["startCmd"], config["startParameter"]);
+		}
+	});
+		
+	this.client.on('message', function (topic, message) {
+		if (topic == that.topicStatusGet) {
+			var status = message.toString();
+			that.motionDetected = (status == this.onValue) ? true : false;
+		   	that.service.getCharacteristic(Characteristic.MotionDetected).setValue(that.motionDetected, undefined);
+		}
+		
+		if (topic == that.topicsStateGet) {
+			var data = JSON.parse(message);
+			
+			if (data.hasOwnProperty("POWER")) { 
+				var status = data.POWER;
+				that.motionDetected = (status == this.onValue);
+		   		that.service.getCharacteristic(Characteristic.MotionDetected).setValue(that.motionDetected, undefined);
+			}
+		} else if (topic == that.activityTopic) {
+			var status = message.toString(); 	
+			that.activeStat = (status == that.activityParameter);
+			that.service.setCharacteristic(Characteristic.StatusActive, that.activeStat);
+		}
+	});
+    this.client.subscribe(this.topicStatusGet);
+	if(this.topicsStateGet !== ""){
+	  	this.client.subscribe(this.topicsStateGet);
+ 	}
+	if(this.activityTopic !== ""){
+	  	this.client.subscribe(this.activityTopic);
+ 	}
 }
 
-TemperatureTasmotaAccessory.prototype.getState = function(callback) {
-    callback(null, this.temperature);
+MotionSensorTasmotaAccessory.prototype.getStatus = function(callback) {
+    callback(null, this.motionDetected);
 }
 
-TemperatureTasmotaAccessory.prototype.getStatusActive = function(callback) {
+MotionSensorTasmotaAccessory.prototype.setStatus = function(status, callback) {
+	this.motionDetected = status;
+	this.client.publish(this.topicStatusSet, status ? this.onValue : this.offValue, this.publish_options);
+	callback();
+}
+
+MotionSensorTasmotaAccessory.prototype.getStatusActive = function(callback) {
     callback(null, this.activeStat);
 }
 
-TemperatureTasmotaAccessory.prototype.getServices = function() {
+MotionSensorTasmotaAccessory.prototype.getOutletUse = function(callback) {
+    callback(null, true); // If configured for outlet - always in use (for now)
+}
+
+MotionSensorTasmotaAccessory.prototype.getServices = function() {
 
 	var informationService = new Service.AccessoryInformation();
 

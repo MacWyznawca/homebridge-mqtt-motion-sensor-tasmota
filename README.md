@@ -1,6 +1,8 @@
 # homebridge-mqtt-motion-sensor-tasmota
 Plugin to HomeBridge optimized for work with Itead Sonoff hardware and firmware [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) via MQTT. It acts as a motion detector. Ex. connect the motion detector to GPIO14 and set GPIO14 as a switch in the configuration of the firmware Tasmota.
 
+Like this? Please buy me a beer (or coffee) please ;-) <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=CK56Q7SFHEHSW"><img src="http://macwyznawca.pl/donate-paypal.png" alt="Donate a coder" data-canonical-src="http://macwyznawca.pl/donate-paypal.svg" style="max-width:100%;"></a>
+
 [MacWyznawca.pl](http://macwyznawca.pl)
 
 Installation

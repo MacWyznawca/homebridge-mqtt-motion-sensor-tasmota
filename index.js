@@ -124,7 +124,7 @@ function MotionSensorTasmotaAccessory(log, config) {
 	this.client.on('message', function (topic, message) {
 		if (topic == that.topicStatusGet) {
 			var status = message.toString();
-			that.motionDetected = (status == this.onValue) ? true : false;
+			that.motionDetected = (status == that.onValue) ? true : false;
 		   	that.service.getCharacteristic(Characteristic.MotionDetected).setValue(that.motionDetected, undefined);
 		}
 		
